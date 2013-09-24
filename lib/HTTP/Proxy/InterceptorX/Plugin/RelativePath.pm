@@ -4,6 +4,42 @@ use strict;
 use 5.008_005;
 our $VERSION = '0.01';
 
+use Moose::Role;
+use Path::Class;
+
+=head2
+
+This plugin maps a url path to a local directory. ie: 
+
+    remote path: http://www.site.com.br/scripts/js/(.+)
+     local path:                      /home/user/js/....
+
+Vai tentar pegar nos mesmos diretórios mas vai abrir arquivos locais ao invés de remotos
+
+=cut
+
+sub replace_for_relativepath {
+  my ( $self, $args ) = @_; 
+  foreach my $url ( keys $self->urls_to_proxy ) {
+    next unless exists $self->urls_to_proxy->{ $url }->{ relative_path }
+                    && $self->http_request->{ _uri }->as_string =~ m/$url/;
+    my $arquivo= file( $self->urls_to_proxy->{ $url }->{ relative_path } , $+{caminho}||$+{path}||$1 );
+    $arquivo =~ s/(\?.+$)//g; #tira os ?blablabla da url pois não é possível abrir arquivo
+    if ( -e $arquivo ) {
+      $self->print_file_as_request( $arquivo );
+      return 1;
+    } else {
+        warn " ARQUIVO NAO ENCONTRADO: " . $arquivo;
+    }
+    return 0;
+  }
+}
+
+after 'BUILD'=>sub {
+    my ( $self ) = @_; 
+    $self->append_plugin_method( "replace_for_relativepath" );
+};
+
 1;
 __END__
 
