@@ -18,12 +18,12 @@ Vai tentar pegar nos mesmos diretórios mas vai abrir arquivos locais ao invés 
 
 =cut
 
-sub replace_for_relativepath {
+sub RelativePath {
   my ( $self, $args ) = @_; 
   foreach my $url ( keys $self->urls_to_proxy ) {
-    next unless exists $self->urls_to_proxy->{ $url }->{ relative_path }
+    next unless exists $self->urls_to_proxy->{ $url }->{ RelativePath }
                     && $self->http_request->{ _uri }->as_string =~ m/$url/;
-    my $arquivo= file( $self->urls_to_proxy->{ $url }->{ relative_path } , $+{caminho}||$+{path}||$1 );
+    my $arquivo= file( $self->urls_to_proxy->{ $url }->{ RelativePath } , $+{caminho}||$+{path}||$1 );
     $arquivo =~ s/(\?.+$)//g; #tira os ?blablabla da url pois não é possível abrir arquivo
     if ( -e $arquivo ) {
       $self->print_file_as_request( $arquivo );
@@ -37,7 +37,7 @@ sub replace_for_relativepath {
 
 after 'BUILD'=>sub {
     my ( $self ) = @_; 
-    $self->append_plugin_method( "replace_for_relativepath" );
+    $self->append_plugin_method( "RelativePath" );
 };
 
 1;
