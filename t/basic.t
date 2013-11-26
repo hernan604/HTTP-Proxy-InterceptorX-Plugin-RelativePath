@@ -14,7 +14,7 @@ with qw/
 /;
 
 my $url_path;
-my $proxy_port        = 32452;
+my $proxy_port        = int(rand(9999))+50000;
 my $tests_config      = TestsConfig->new();
 my $server            = TestServer->new();
    $server->set_dispatch( $tests_config->conteudos );
@@ -22,7 +22,7 @@ my $pid_server        = $server->background();
 #ok 1;
 
 my $p = My::Proxy->new( urls_to_proxy => {
-    $server->root . "/dir/(.+)"         => {  "relative_path" => dir( "t" , "somedir" ) },
+    $server->root . "/dir/(.+)"         => {  RelativePath => dir( "t" , "somedir" ) },
 } );
 
 my $pid = fork_proxy( $p );
@@ -71,7 +71,7 @@ ok( $res_proxy->{ content } ne $content_original , "Content is not like the orig
 ok( $res_proxy->{ content } =~ m|content modified with this file: somedir/dir2/css/style.css|ig, "content is modified correctly" );
 
 # kill web server and proxy server
-kill 'HUP', $pid, $pid_server;
+kill 'KILL', $pid, $pid_server;
 
 sub fork_proxy {
     my $proxy = shift;

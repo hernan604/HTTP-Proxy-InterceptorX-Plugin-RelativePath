@@ -1,1 +1,1 @@
-prove -I/home/catalyst/HTTP-Proxy-Interceptor/HTTP-Proxy-Interceptor/lib/ -I./lib/ -l t
+prove -I../HTTP-Proxy-Interceptor/lib/ -I./lib/ t
